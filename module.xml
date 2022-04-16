@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+  <Document name="python-globals-serializer-example.ZPM">
+    <Module>
+      <Name>python-globals-serializer-example</Name>
+      <Version>1.0.2</Version>
+      <Description>An example on how store Python objects using IRIS globals</Description>
+      <Packaging>module</Packaging>
+      <Dependencies>
+        <ModuleReference>
+          <Name>webterminal</Name>
+          <Version>4.9.2</Version>
+        </ModuleReference>
+      </Dependencies>
+      <SourcesRoot>src</SourcesRoot>
+      <Resource Name="dc.jrpereira.PKG"/>
+      <UnitTest Name="/tests" Package="UnitTest" Phase="test"/>
+      <FileCopy Name="jrpereira/python/" Target="${mgrdir}python/"/>
+      <FileCopy Name="jrpereira/data/" Target="${mgrdir}data/"/>
+    </Module>
+  </Document>
+</Export>
