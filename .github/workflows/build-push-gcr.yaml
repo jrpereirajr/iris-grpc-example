@@ -8,8 +8,8 @@ on:
 
 env:
   # Change this section according to your needs
-  IMAGE_NAME:   python-globals-serializer-example
-  SERVICE:      deploy-python-globals-serializer-example
+  IMAGE_NAME:   iris-grpc-example
+  SERVICE:      deploy-iris-grpc-example
   DOMAIN_NAME:  serializer.demo.community.intersystems.com
 # Leave this section untouched
   PROJECT_ID:   iris-community-demos

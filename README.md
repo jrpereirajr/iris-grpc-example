@@ -1,8 +1,6 @@
-## python-globals-serializer-example
+## iris-grpc-example
 
-The aim of this project is to play with [IRIS Embedded Python](https://docs.intersystems.com/irisforhealthlatest/csp/docbook/DocBook.UI.Page.cls?KEY=AFL_epython) to show you how to use IRIS globals to support Python objects serialization/deserialization.
-
-This is a proof of concept project, which could be used in future for projects more complex, like usage of globals to store data volumes bigger than memory available.
+todo:
 
 ## Online demo
 
@@ -20,7 +18,7 @@ If you'd like to test the project in your environment, make sure you have [git](
 ## ZPM installation
 
 ```
-USER>zpm "install python-globals-serializer-example"
+USER>zpm "install iris-grpc-example"
 ```
 
 ## Docker installation
@@ -30,7 +28,7 @@ If the online demo is not available anymore or you would like to play with the p
 Clone/git pull the repo into any local directory
 
 ```
-$ git clone git@github.com:jrpereirajr/python-globals-serializer-example.git
+$ git clone git@github.com:jrpereirajr/iris-grpc-example.git
 ```
 
 Open the terminal in this directory and run:
@@ -89,7 +87,7 @@ If things went as expected, we are able to see the Python objects data in the gl
 
 ```
 USER>zw ^test
-^test(1,"_class")="<class 'employee.SalaryEmployee'>"
+^test(1,"class")="<class 'employee.SalaryEmployee'>"
 ^test(1,"company","oref")=2
 ^test(1,"company","type")="<class 'iris_global_object.IrisGlobalObject'>"
 ^test(1,"id","type")="<class 'int'>"
@@ -102,7 +100,7 @@ USER>zw ^test
 ^test(1,"weekly_salary","value")=123
 ^test(1,"year_salary","type")="<class 'int'>"
 ^test(1,"year_salary","value")=6396
-^test(2,"_class")="<class 'employee.Company'>"
+^test(2,"class")="<class 'employee.Company'>"
 ^test(2,"name","type")="<class 'str'>"
 ^test(2,"name","value")="Company ABC"
 ^test("idx")=2
@@ -167,7 +165,7 @@ Type quit() or Ctrl-D to exit this shell.
 >>> quit()
 
 USER>zw ^test
-^test(1,"_class")="<class 'employee.SalaryEmployee'>"
+^test(1,"class")="<class 'employee.SalaryEmployee'>"
 ^test(1,"company","oref")=2
 ^test(1,"company","type")="<class 'iris_global_object.IrisGlobalObject'>"
 ^test(1,"id","type")="<class 'int'>"
@@ -180,125 +178,21 @@ USER>zw ^test
 ^test(1,"weekly_salary","value")=123
 ^test(1,"year_salary","type")="<class 'int'>"
 ^test(1,"year_salary","value")=6396
-^test(2,"_class")="<class 'employee.Company'>"
+^test(2,"class")="<class 'employee.Company'>"
 ^test(2,"name","type")="<class 'str'>"
 ^test(2,"name","value")="Shift"
 ^test("idx")=2
 ```
 
-Serialization of a Python dictionay object:
-
-```
-USER>k ^test
-
-USER>Do $system.Python.Shell()
-
-Python 3.8.10 (default, Sep 28 2021, 16:10:42) 
-[GCC 9.3.0] on linux
-Type quit() or Ctrl-D to exit this shell.
->>> from iris_global_serializer import IrisGlobalSerializer
->>> ensurance = dict({"name": "Ensurance Company", "value": "10000", "due": "2022-12-31"})
->>> mycar = dict({"maker": "Toyota", "model": "RAV4", "ensurance": ensurance})
->>> mycar
-{'maker': 'Toyota', 'model': 'RAV4', 'ensurance': {'name': 'Ensurance Company', 'value': '10000', 'due': '2022-12-31'}}
->>> serializer = IrisGlobalSerializer(gname="^test")
->>> goref = serializer.serialize(mycar)
->>> goref
-1
->>> quit()
-
-USER>zw ^test
-^test(1,"_class")="<class 'dict'>"
-^test(1,"ensurance","oref")=2
-^test(1,"ensurance","type")="<class 'iris_global_object.IrisGlobalObject'>"
-^test(1,"maker","type")="<class 'str'>"
-^test(1,"maker","value")="Toyota"
-^test(1,"model","type")="<class 'str'>"
-^test(1,"model","value")="RAV4"
-^test(2,"_class")="<class 'dict'>"
-^test(2,"due","type")="<class 'str'>"
-^test(2,"due","value")="2022-12-31"
-^test(2,"name","type")="<class 'str'>"
-^test(2,"name","value")="Ensurance Company"
-^test(2,"value","type")="<class 'str'>"
-^test(2,"value","value")=10000
-^test("idx")=2
-```
-
-Deserialization of a Python dictionary:
-
-```
-USER>Do $system.Python.Shell()
-
-Python 3.8.10 (default, Sep 28 2021, 16:10:42) 
-[GCC 9.3.0] on linux
-Type quit() or Ctrl-D to exit this shell.
->>> from iris_global_serializer import IrisGlobalSerializer
->>> goref = 1
->>> serializer = IrisGlobalSerializer(gname="^test")
->>> deserializedObj = serializer.deserialize(goref)
->>> deserializedObj
-{'ensurance': {'due': '2022-12-31', 'name': 'Ensurance Company', 'value': '10000'}, 'maker': 'Toyota', 'model': 'RAV4'}
->>> quit()
-```
-
-Serialization of a Python list:
-
-```
-USER>k ^test
-
-USER>Do $system.Python.Shell()
-
-Python 3.8.10 (default, Sep 28 2021, 16:10:42) 
-[GCC 9.3.0] on linux
-Type quit() or Ctrl-D to exit this shell.
->>> from iris_global_serializer import IrisGlobalSerializer
->>> mylist = ["apple", "banana", "cherry"]
->>> mylist
-['apple', 'banana', 'cherry']
->>> serializer = IrisGlobalSerializer(gname="^test")
->>> goref = serializer.serialize(mylist)
->>> goref
-1
->>> quit()
-
-USER>zw ^test
-^test(1,"_class")="<class 'list'>"
-^test(1,"idx0","type")="<class 'str'>"
-^test(1,"idx0","value")="apple"
-^test(1,"idx1","type")="<class 'str'>"
-^test(1,"idx1","value")="banana"
-^test(1,"idx2","type")="<class 'str'>"
-^test(1,"idx2","value")="cherry"
-^test("idx")=1
-```
-
-Deserialization of a Python list:
-
-```
-USER>Do $system.Python.Shell()
-
-Python 3.8.10 (default, Sep 28 2021, 16:10:42) 
-[GCC 9.3.0] on linux
-Type quit() or Ctrl-D to exit this shell.
->>> from iris_global_serializer import IrisGlobalSerializer
->>> goref = 1                                                
->>> serializer = IrisGlobalSerializer(gname="^test")
->>> deserializedObj = serializer.deserialize(goref)
->>> deserializedObj
-['apple', 'banana', 'cherry']
->>> quit()
-```
-
-You can also find other examples in the [unit test folder](https://github.com/jrpereirajr/python-globals-serializer-example/tree/master/tests/UnitTest/IrisGlobalSerializer).
+You can also find other examples in the [unit test folder](https://github.com/jrpereirajr/iris-grpc-example/tree/master/tests/UnitTest/IrisGlobalSerializer).
 
 To run the unit tests, execute this command:
 
 ```
-USER>zpm "python-globals-serializer-example test -v"
+USER>zpm "iris-grpc-example test -v"
 ```
 
 ## Todo list:
 
-- Implement serialization/deserialization to Python general purpose built-in containers such as dict, list, set and tuple
+- Implement serialization/deserialization to Python collection types
 - Do some performance tests
