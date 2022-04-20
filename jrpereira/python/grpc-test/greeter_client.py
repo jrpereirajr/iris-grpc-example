@@ -19,12 +19,11 @@ args = vars(parser.parse_args())
 def run() -> None:
     port = args["port"]
     channel = grpc.insecure_channel(f'localhost:{port}')
-    
     stub = MultiGreeterStub(channel)
+
     response = stub.SayHello(HelloRequest(name='you'))
     print("Greeter client received: " + response.message)
     
-    stub = MultiGreeterStub(channel)
     for response in stub.SayHelloStream(HelloRequest(name="you")):
         print("Greeter client received from stream: " + response.message)
 

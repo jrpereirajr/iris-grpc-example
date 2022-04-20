@@ -11,12 +11,11 @@ ClassMethod ExecutePython() [ Language = python ]
     from helloworld_pb2_grpc import MultiGreeterStub
     
     channel = grpc.insecure_channel('localhost:50051')
-    
     stub = MultiGreeterStub(channel)
+
     response = stub.SayHello(HelloRequest(name='you'))
     print("Greeter client received: " + response.message)
     
-    stub = MultiGreeterStub(channel)
     for response in stub.SayHelloStream(HelloRequest(name="you")):
         print("Greeter client received from stream: " + response.message)
 }
@@ -31,8 +30,8 @@ ClassMethod ExecuteObjectScript()
     Set helloworldpb2grpc = $SYSTEM.Python.Import("helloworld_pb2_grpc")
 
     Set channel = grpc."insecure_channel"("localhost:50051")
-    
     Set stub = helloworldpb2grpc.MultiGreeterStub(channel)
+    
     Set args = {"name": "you"}
     Set response = stub.SayHello(helloworldpb2.HelloRequest(args...))
     Write "Greeter client received: "_response.message, !
