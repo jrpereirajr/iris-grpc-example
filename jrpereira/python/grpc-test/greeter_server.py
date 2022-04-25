@@ -29,13 +29,16 @@ class Greeter(MultiGreeterServicer):
     def SayHello(self, request: HelloRequest, context) -> HelloReply:
         logging.info("Serving SayHello request %s", request)
         obj = iris.cls("dc.jrpereira.gRPC.HelloWorldServer")._New()
-        # return obj.SayHelloPython(request)
         return obj.SayHelloObjectScript(request)
 
     def SayHelloStream(self, request: HelloRequest, context: grpc.aio.ServicerContext) -> HelloReply:
         logging.info("Serving SayHelloStream request %s", request)
-        for i in range(NUMBER_OF_REPLY):
-            yield HelloReply(message=f"Hello number {i}, {request.name}!")
+        obj = iris.cls("dc.jrpereira.gRPC.HelloWorldServer")._New()
+        n = request.num_greetings
+        if n == 0:
+            n = NUMBER_OF_REPLY
+        for i in range(n):
+            yield obj.SayHelloObjectScript(request)
 
 def get_server():
     port = args["port"]
