@@ -1,7 +1,7 @@
 Class dc.jrpereira.gRPC.HelloWorldClient Extends %RegisteredObject
 {
 
-ClassMethod ExecutePython() [ Language = python ]
+Method ExecutePython() [ Language = python ]
 {
     import sys
     sys.path.append('/usr/irissys/mgr/python/grpc-test/')
@@ -32,7 +32,7 @@ ClassMethod ExecuteObjectScript()
     Set channel = grpc."insecure_channel"("localhost:50051")
     Set stub = helloworldpb2grpc.MultiGreeterStub(channel)
     
-    Set args = {"name": "you"}
+    Set args = {"name": "you", "num_greetings": 10}
     Set response = stub.SayHello(helloworldpb2.HelloRequest(args...))
     Write "Greeter client received: "_response.message, !
     
