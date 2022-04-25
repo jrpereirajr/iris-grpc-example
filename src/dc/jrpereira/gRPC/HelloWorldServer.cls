@@ -52,6 +52,13 @@ Method Stop() As %Status
     Quit $$$OK
 }
 
+Method Restart() As %Status
+{
+    $$$ThrowOnError(..Stop())
+    $$$ThrowOnError(..Start())
+    Quit $$$OK
+}
+
 Method CreateOsNonZeroExpcetion(pOsSignal) As %Exception.AbstractException
 {
     Set msg = "Operating system returned a non-zero status: "_pOsSignal
