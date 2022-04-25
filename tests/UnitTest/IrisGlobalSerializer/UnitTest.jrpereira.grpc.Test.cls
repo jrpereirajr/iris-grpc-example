@@ -49,7 +49,6 @@ Method TestClients()
       Try {
         Set client = ##class(dc.jrpereira.gRPC.HelloWorldClient).%New()
         Do ##class(dc.jrpereira.gRPC.HelloWorldClient).ExecutePython()
-        Do ##class(dc.jrpereira.gRPC.HelloWorldClient).ExecuteObjectScript()
       } Catch(e) {}
       Close 2
     } Catch(e) {}

@@ -20,31 +20,4 @@ Method ExecutePython() [ Language = python ]
         print("Greeter client received from stream: " + response.message)
 }
 
-ClassMethod ExecuteObjectScript()
-{
-    Set sys = $system.Python.Import("sys")
-    Do sys.path.append("/usr/irissys/mgr/python/grpc-test/")
-
-    Set grpc = $SYSTEM.Python.Import("grpc")
-    Set helloworldpb2 = $SYSTEM.Python.Import("helloworld_pb2")
-    Set helloworldpb2grpc = $SYSTEM.Python.Import("helloworld_pb2_grpc")
-
-    Set channel = grpc."insecure_channel"("localhost:50051")
-    Set stub = helloworldpb2grpc.MultiGreeterStub(channel)
-    
-    Set args = {"name": "you", "num_greetings": 10}
-    Set response = stub.SayHello(helloworldpb2.HelloRequest(args...))
-    Write "Greeter client received: "_response.message, !
-    
-    Set stub = helloworldpb2grpc.MultiGreeterStub(channel)
-    Set args = {"name": "you"}
-    Set stream = stub.SayHelloStream(helloworldpb2.HelloRequest(args...))
-
-    While (1) {
-        Set response = stream.next()
-        If (stream.done()) Quit
-        Write "Greeter client received from stream: "_response.message, !
-    }
-}
-
 }
