@@ -29,6 +29,7 @@ class Greeter(MultiGreeterServicer):
     def SayHello(self, request: HelloRequest, context) -> HelloReply:
         logging.info("Serving SayHello request %s", request)
         obj = iris.cls("dc.jrpereira.gRPC.HelloWorldServer")._New()
+        # hook to your ObjectScript code
         return obj.SayHelloObjectScript(request)
 
     def SayHelloStream(self, request: HelloRequest, context: grpc.aio.ServicerContext) -> HelloReply:
@@ -38,6 +39,7 @@ class Greeter(MultiGreeterServicer):
         if n == 0:
             n = NUMBER_OF_REPLY
         for i in range(n):
+            # hook to your ObjectScript code
             yield obj.SayHelloObjectScript(request)
 
 def get_server():
