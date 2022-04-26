@@ -1,25 +1,12 @@
 ## iris-grpc-example
 
-todo:
+A hello world example adapted from the officials examples, presenting how to use gRPC with IRIS.
 
-## Online demo
-
-A [online demo](https://serializer.demo.community.intersystems.com/terminal/) was setup for the [InterSystems Globals Contest](https://community.intersystems.com/post/intersystems-globals-contest). You can use it for your convenience during the event.
-
-Use this credentials:
-
-- username: _system
-- password: SYS
+You can find more information on [this article] (https://community.intersystems.com/post/grpc-what-it-and-hello-world).
 
 ## Installation prerequisites
 
 If you'd like to test the project in your environment, make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Docker desktop](https://www.docker.com/products/docker-desktop) installed.
-
-## ZPM installation
-
-```
-USER>zpm "install iris-grpc-example"
-```
 
 ## Docker installation
 
@@ -43,156 +30,166 @@ $ docker-compose build
 $ docker-compose up -d
 ```
 
-## Simple demo
+# Plaing with the code
 
-In this simple example, we'll create Python objects and serialize them to the global `^test`. After that, we'll deserialize the objects stored in the global again to Python objects in memory.
 
-Open IRIS terminal (or the [online version](https://serializer.demo.community.intersystems.com/terminal/)):
+Open a cache terminal through the system terminal or through Visual Studio Code:
 
-```
-$ docker-compose exec iris iris session iris
-USER>
-```
-
-First, let's ensure that our storage global is empty:
-
-```
-USER>zw ^test
-
+```bash
+docker exec -it iris-grpc-example_iris_1 bash
+iris session iris
 ```
 
-Now, lets access the IRIS Embedded Python terminal in order to create some Python objects and serialize them to IRIS globals:
+Start our gRPC server:
 
-```
-USER>Do $system.Python.Shell()
-
-Python 3.8.10 (default, Sep 28 2021, 16:10:42) 
-[GCC 9.3.0] on linux
-Type quit() or Ctrl-D to exit this shell.
->>> from iris_global_serializer import IrisGlobalSerializer
->>> from employee import SalaryEmployee, Company
->>> emp = SalaryEmployee(10, "me", 123)
->>> emp.note = "Note note note..."
->>> emp.company = Company("Company ABC")
->>> emp
-SalaryEmployee: {'id': 10, 'name': 'me', 'weekly_salary': 123, 'year_salary': 6396, 'note': 'Note note note...', 'company': {'name': 'Company ABC'}}
->>> serializer = IrisGlobalSerializer(gname="^test")
->>> goref = serializer.serialize(emp)
->>> goref
-1
->>> quit()
+```objectscript
+Set server = ##class(dc.jrpereira.gRPC.HelloWorldServer).%New()
+Do server.Start()
 ```
 
-If things went as expected, we are able to see the Python objects data in the global `^test`. So, let check such global content in the terminal:
+Now, let’s create a gRPC client to interact with this server:
 
-```
-USER>zw ^test
-^test(1,"class")="<class 'employee.SalaryEmployee'>"
-^test(1,"company","oref")=2
-^test(1,"company","type")="<class 'iris_global_object.IrisGlobalObject'>"
-^test(1,"id","type")="<class 'int'>"
-^test(1,"id","value")=10
-^test(1,"name","type")="<class 'str'>"
-^test(1,"name","value")="me"
-^test(1,"note","type")="<class 'str'>"
-^test(1,"note","value")="Note note note..."
-^test(1,"weekly_salary","type")="<class 'int'>"
-^test(1,"weekly_salary","value")=123
-^test(1,"year_salary","type")="<class 'int'>"
-^test(1,"year_salary","value")=6396
-^test(2,"class")="<class 'employee.Company'>"
-^test(2,"name","type")="<class 'str'>"
-^test(2,"name","value")="Company ABC"
-^test("idx")=2
+```objectscript
+Set client = ##class(dc.jrpereira.gRPC.HelloWorldClient).%New()
+Do client.ExecutePython()
 ```
 
-As we can see, the data inputted in the Python objects was stored in the global `^test`. the first global node is an object identifier. In the second node, object properties names are stored. Finally, the third node stores properties metadata, such as type, value and oref (when the property is an object). 
+If all is OK, you should see a bunch of greeting messages in the terminal.
 
-Note that the node `^test(1,"company","oref")=2` refers to the node `^test(2)`, which points to another object.
+Finally, let's stop out server:
 
-Ok, now lets deserialize the object stored in the global again to a Python object:
-
-```
-USER>Do $system.Python.Shell()
-
-Python 3.8.10 (default, Sep 28 2021, 16:10:42) 
-[GCC 9.3.0] on linux
-Type quit() or Ctrl-D to exit this shell.
->>> from iris_global_serializer import IrisGlobalSerializer
->>> serializer = IrisGlobalSerializer(gname="^test")
->>> goref = 1
->>> deserializedObj = serializer.deserialize(goref)
->>> deserializedObj
-SalaryEmployee: {'id': 10, 'name': 'me', 'weekly_salary': 123, 'year_salary': 6396, 'note': 'Note note note...', 'company': {'name': 'Company ABC'}}
->>> quit()
+```objectscript
+Do server.Stop()
 ```
 
-Note that the deserialized object has the same information as the initial object created early.
+## Using the grpcurl utility within our hello world
 
-You can also change the information stored in globals directly:
+The [`grpcurl` utility](https://github.com/fullstorydev/grpcurl) is an equivalent to `curl` one, but here instead of act like a http client (like `curl`), we use `grpcurl` as a gRPC client to test services from a running gRPC server. So let’s use it to play a little bit more with our hello world.
 
-```
-USER>Set ^test(1,"name","value")="José"
-USER>Set ^test(2,"name","value")="Shift" 
+First, let’s download and install the `grpcurl` utility:
 
-USER>Do $system.Python.Shell()
-
-Python 3.8.10 (default, Sep 28 2021, 16:10:42) 
-[GCC 9.3.0] on linux
-Type quit() or Ctrl-D to exit this shell.
->>> from iris_global_serializer import IrisGlobalSerializer
->>> goref = 1
->>> serializer = IrisGlobalSerializer(gname="^test")
->>> deserializedObj = serializer.deserialize(goref)
->>> deserializedObj
-SalaryEmployee: {'id': 10, 'name': 'José', 'weekly_salary': 123, 'year_salary': 6396, 'note': 'Note note note...', 'company': {'name': 'Shift'}}
->>> quit()
+```bash
+cd /tmp
+wget https://github.com/fullstorydev/grpcurl/releases/download/v1.8.6/grpcurl_1.8.6_linux_x86_64.tar.gz
+tar -zxvf grpcurl_1.8.6_linux_x86_64.tar.gz
 ```
 
-Also, changes in Python object are reflected in the binded global:
+Check if the installation is OK, by typing:
 
-```
-USER>Do $system.Python.Shell()
-
-Python 3.8.10 (default, Sep 28 2021, 16:10:42) 
-[GCC 9.3.0] on linux
-Type quit() or Ctrl-D to exit this shell.
->>> from iris_global_serializer import IrisGlobalSerializer
->>> goref = 1
->>> serializer = IrisGlobalSerializer(gname="^test")
->>> deserializedObj = serializer.deserialize(goref)
->>> deserializedObj.note = "Updated note..."
->>> quit()
-
-USER>zw ^test
-^test(1,"class")="<class 'employee.SalaryEmployee'>"
-^test(1,"company","oref")=2
-^test(1,"company","type")="<class 'iris_global_object.IrisGlobalObject'>"
-^test(1,"id","type")="<class 'int'>"
-^test(1,"id","value")=10
-^test(1,"name","type")="<class 'str'>"
-^test(1,"name","value")="José"
-^test(1,"note","type")="<class 'str'>"
-^test(1,"note","value")="Updated note..."
-^test(1,"weekly_salary","type")="<class 'int'>"
-^test(1,"weekly_salary","value")=123
-^test(1,"year_salary","type")="<class 'int'>"
-^test(1,"year_salary","value")=6396
-^test(2,"class")="<class 'employee.Company'>"
-^test(2,"name","type")="<class 'str'>"
-^test(2,"name","value")="Shift"
-^test("idx")=2
+```bash
+./grpcurl --help
 ```
 
-You can also find other examples in the [unit test folder](https://github.com/jrpereirajr/iris-grpc-example/tree/master/tests/UnitTest/IrisGlobalSerializer).
+If all is OK, you should receive an output with all `grpcurl` options.
 
-To run the unit tests, execute this command:
+Now, let’s ask what services are available in the server: 
 
 ```
-USER>zpm "iris-grpc-example test -v"
+./grpcurl \
+	-plaintext \
+	-import-path /irisrun/repo/jrpereira/python/grpc-test \
+	-proto helloworld.proto \
+	localhost:50051 \
+	list
 ```
 
-## Todo list:
+You should receive this response:
 
-- Implement serialization/deserialization to Python collection types
-- Do some performance tests
+```bash
+helloworld.MultiGreeter
+```
+
+As you can see, the utility returned our service defined in the proto file (`helloworld.MultiGreeter`) as a response for listing all services available.
+
+In the command above, I put each parameter in one separated line. So, let’s explain each one:
+
+`-plaintext`: allows using gRPC with noTLS (insecure); we’re using here because we didn’t implement a secure connection for our serve - of course should be used only in non-production environment
+`-import-path` and `-proto`: path and name for the .proto file (service definition); necessary if you the server doesn’t implement reflection
+
+After these parameters, we provide the server hostname and port, and then a `grpcurl` command, `list` in this case.
+
+Now, let’s ask for all methods in the service `helloworld.MultiGreeter`:
+
+```bash
+./grpcurl \
+	-plaintext \
+	-import-path /irisrun/repo/jrpereira/python/grpc-test \
+	-proto helloworld.proto \
+	localhost:50051 \
+	list helloworld.MultiGreeter
+```
+
+You should receive this output:
+
+```bash
+helloworld.MultiGreeter.SayHello
+helloworld.MultiGreeter.SayHelloStream
+```
+
+As you can see, these are the methods defined into the proto file used to generate code for our server.
+
+Ok, now let’s test the `SayHello()` method:
+
+```bash
+./grpcurl \
+	-plaintext  \
+	-d '{"name":"you"}' \
+	-import-path /irisrun/repo/jrpereira/python/grpc-test \
+	-proto helloworld.proto \
+	localhost:50051 \
+	helloworld.MultiGreeter.SayHello
+```
+
+Here is the expected output (just like our client implemented early):
+
+```bash
+{
+  "message": "Hi you! :)"
+}
+```
+
+Also let’s test the other method, `SayHelloStream()`:
+
+```bash
+./grpcurl \
+	-plaintext -d '{"name":"you"}' \
+	-import-path /irisrun/repo/jrpereira/python/grpc-test \
+	-proto helloworld.proto localhost:50051 \
+	helloworld.MultiGreeter.SayHelloStream
+
+And, we should got a stream with 10 greeting messages:
+
+{
+  "message": "Hi you! :)"
+}
+{
+  "message": "Hi you! :)"
+}
+...
+{
+  "message": "Hi you! :)"
+}
+```
+
+Finally, let’s do a slight change on this command to use another property in the protobuf message, the `num_greetings` one. This property is used by the server to control how many messages will be sent in the stream.
+
+So, this command ask the server to return only 2 messages in the stream, instead 10 by default:
+
+```bash
+./grpcurl \
+	-plaintext -d '{"name":"you", "num_greetings":2}' \
+	-import-path /irisrun/repo/jrpereira/python/grpc-test \
+	-proto helloworld.proto localhost:50051 \
+	helloworld.MultiGreeter.SayHelloStream
+```
+
+And this should be what you will see in the terminal:
+
+```bash
+{
+  "message": "Hi you! :)"
+}
+{
+  "message": "Hi you! :)"
+}
+```
