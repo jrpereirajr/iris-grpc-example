@@ -4,19 +4,21 @@
       "Dockerfile*": "dockerfile",
       "iris.script": "objectscript"
     },
-  "objectscript.conn" :{
-    "ns": "USER",
-    "username": "_SYSTEM",
-    "password": "SYS",
-    "docker-compose": {
-      "service": "iris",
-      "internalPort": 52773
+    "objectscript.conn" :{
+      "active": true,
+      "host": "localhost",
+      "port": 55047,
+      "ns": "USER",
+      "username": "SuperUser",
+      "password": "SYS",
+      "docker-compose": {
+        "service": "iris",
+        "internalPort": 52773
+      },
+      "links": {
+        "Web Terminal": "http://localhost:${port}/terminal/"
+      }
     },
-    "links": {
-      "Web Terminal": "http://localhost:${port}/terminal/"
-    },
-    "active": true
-  },
   "sqltools.connections": [
     {
       "namespace": "USER",
