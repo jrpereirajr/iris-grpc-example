@@ -17,7 +17,7 @@ Method Start() As %Status
     Set cmd = $$$FormatText(..GetStartServerCommnad(), port)
     Set osSignal = $ZF(-2, cmd, "", "", 1)
     If (osSignal '= 0) {
-        Throw ..CreateOsNonZeroExpcetion(osSignal)
+        Throw ..CreateOsNonZeroSignalExpcetion(osSignal)
     }
     Set ..pid = $ZChild
 
@@ -44,7 +44,7 @@ Method Stop() As %Status
 
     Set osSignal = $ZF(-1, "kill "_..pid)
     If (osSignal '= 0) {
-        Throw ..CreateOsNonZeroExpcetion(osSignal)
+        Throw ..CreateOsNonZeroSignalExpcetion(osSignal)
     }
 
     Set ..pid = ""
@@ -59,7 +59,7 @@ Method Restart() As %Status
     Quit $$$OK
 }
 
-Method CreateOsNonZeroExpcetion(pOsSignal) As %Exception.AbstractException
+Method CreateOsNonZeroSignalExpcetion(pOsSignal) As %Exception.AbstractException
 {
     Set msg = "Operating system returned a non-zero status: "_pOsSignal
     Return ##class(%Exception.General).%New(msg)
