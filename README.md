@@ -30,8 +30,7 @@ $ docker-compose build
 $ docker-compose up -d
 ```
 
-# Plaing with the code
-
+# Playing with the code
 
 Open a cache terminal through the system terminal or through Visual Studio Code:
 
@@ -81,6 +80,13 @@ Check if the installation is OK, by typing:
 ```
 
 If all is OK, you should receive an output with all `grpcurl` options.
+
+Start the gRPC server in a IRIS terminal session as described [above](#playing-with-the-code):
+
+```
+Set server = ##class(dc.jrpereira.gRPC.HelloWorldServer).%New()
+Do server.Start()
+```
 
 Now, let’s ask what services are available in the server: 
 
